@@ -1,24 +1,36 @@
-const Sequelize = require('sequelize');
+const Sequelize = require("sequelize");
 
 module.exports = class Comment extends Sequelize.Model {
   static init(sequelize) {
-    return super.init({
-      comment: {
-        type: Sequelize.STRING(100),
-        allowNull: false
+    return super.init(
+      {
+        /* id 자동 생성 */
+        content: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+        },
+        created_at: {
+          type: Sequelize.DATE,
+          allowNull: true,
+        },
+      },
+      {
+        sequelize,
+        timestamps: false,
+        modelName: "Comment",
+        tableName: "comments",
+        paranoid: false,
+        charset: "utf8mb4",
+        collate: "utf8mb4_general_ci",
       }
-    }, {
-      sequelize,
-      timestamps: false,
-      modelName: 'Comment',
-      tableName: 'comments',
-      paranoid: false,
-      charset: 'utf8mb4',
-      collate: 'utf8mb4_general_ci',
-    });
+    );
   }
 
   static associate(db) {
-    db.Comment.belongsTo(db.User, { foreignKey: 'userId', targetKey: 'id' });
+    /* Comment : User = n : 1 */
+    db.Comment.belongsTo(db.User, { foreignKey: "user_id", targetKey: "id" });
+
+    /* Comment : Posting = n : 1 */
+    db.Comment.belongsTo(db.Posting, { foreignKey: "posting_id", targetKey: "id" });
   }
 };
