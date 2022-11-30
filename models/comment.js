@@ -16,10 +16,12 @@ module.exports = class Comment extends Sequelize.Model {
       },
       {
         sequelize,
+
         timestamps: false,
         modelName: "Comment",
         tableName: "comments",
         paranoid: false,
+
         charset: "utf8mb4",
         collate: "utf8mb4_general_ci",
       }
