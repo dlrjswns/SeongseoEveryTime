@@ -10,8 +10,8 @@ module.exports = class Follow extends Sequelize.Model {
         sequelize,
 
         timestamps: false,
-        modelName: "Comment",
-        tableName: "comments",
+        modelName: "Follow",
+        tableName: "follows",
         paranoid: false,
 
         charset: "utf8mb4",
