@@ -1,51 +1,134 @@
 const express = require("express");
-// const bcrypt = require("bcrypt");
-const { User, Follow } = require("../models");
+const bcrypt = require("bcrypt");
+const { User, Follow, Comment, Posting } = require("../models");
 
 const { isLoggedIn } = require("./checklogin");
 
 const router = express.Router();
 
-/* /user 내 정보 요청*/
-router.route("/").get(isLoggedIn, async (req, res, next) => {
-  // 로그인 유무 확인
-  res.locals.isAuthenticated = isLoggedIn;
-  res.locals.user = req.user;
-  const userId = req.user.id;
+/* 내 정보 요청*/
+router
+  .route("/")
+  .get(isLoggedIn, async (req, res, next) => {
+    // 로그인 유무 확인
+    res.locals.isAuthenticated = isLoggedIn;
+    res.locals.user = req.user;
 
-  try {
-    const user = await User.findAll({
-      where: { id: userID },
-      include: {
-        model: Follow,
-        attributes: ["follower", "followee"],
-      },
-    });
-    // res.render("", {user});
-  } catch (err) {
-    console.log(err);
-    next(err);
-  }
-});
+    const userId = req.user.id;
 
-router.route("/user/:id").get(isLoggedIn, async (req, res, next) => {
+    try {
+      const user = await User.findAll({
+        where: { id: userId },
+        include: {
+          model: Follow,
+          attributes: ["follower", "followee"],
+        },
+      });
+
+      console.log(user);
+      res.json(user);
+    } catch (err) {
+      console.log(err);
+      next(err);
+    }
+  }) /* 내 정보 수정 */
+  .post(async (req, res, next) => {
+    const userId = req.user.id;
+
+    try {
+      const hash = await bcrypt.hash(req.body.password, 12);
+
+      const result = await User.update(
+        { passwd: hash, name: req.body.name, phone: req.body.phone, addrss: req.body.addrss },
+        {
+          where: { id: userId },
+        }
+      );
+      if (result) {
+        console.log(result);
+        res.json(result);
+      } else next("Not updated");
+    } catch (err) {
+      console.log(err);
+      next(err);
+    }
+  });
+
+/* 지정한 사용자 정보 요청 */
+router.route("/:id").get(isLoggedIn, async (req, res, next) => {
   const userId = req.params.id;
 
   try {
     const user = await User.findAll({
-      where: { id: userID },
+      where: { id: userId },
       attributes: ["id", "name", "phone"],
       include: {
         model: Follow,
         attributes: ["follower", "followee"],
       },
     });
-    // res.render("", {user});
+
+    if (user) res.json(user);
+    else next(`No user with ${userId}.`);
   } catch (err) {
     console.log(err);
     next(err);
   }
 });
+
+// /* 지정한 사용자 정보 삭제 */
+// router.route("/:id/remove").get(isLoggedIn, async (req, res, next) => {
+//   const userId = req.params.id;
+
+//   try {
+//     const result = await User.destroy({
+//       where: { id: userId },
+//     });
+//     if (user) res.json(user);
+//     else next(`No user with ${userId}.`);
+//     console.log(result);
+//     res.json(result);
+//   } catch (err) {
+//     console.log(err);
+//     next(err);
+//   }
+// });
+
+/* 지정한 사용자가 작성한 댓글 요청 */
+router.route("/:id/comments").get(isLoggedIn, async (req, res, next) => {
+  const userId = req.params.id;
+
+  try {
+    const comments = await Comment.findAll({
+      where: { user_id: userId },
+      attributes: ["content", "created_at"],
+    });
+    res.json(comments);
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+});
+
+/*지정한 사용자가 작성한 게시글 요청*/
+router.route("/:id/postings").get(isLoggedIn, async (req, res, next) => {
+  const userId = req.params.id;
+
+  try {
+    const postings = await Posting.findAll({
+      where: { user_id: userId },
+      attributes: ["content", "created_at"],
+    });
+    res.json(postings);
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+});
+
+module.exports = router;
+
+/* ------------------------------------------------------------------------------*/
 
 // const pet = await Pet.findAll({
 //     where: {userId: user},
@@ -207,5 +290,3 @@ router.route("/user/:id").get(isLoggedIn, async (req, res, next) => {
 //     next(err);
 //   }
 // });
-
-module.exports = router;
