@@ -1,8 +1,66 @@
 const express = require("express");
 // const bcrypt = require("bcrypt");
-// const User = require("../models/user");
+const { User, Follow } = require("../models");
+
+const { isLoggedIn } = require("./checklogin");
 
 const router = express.Router();
+
+/* /user 내 정보 요청*/
+router.route("/").get(isLoggedIn, async (req, res, next) => {
+  // 로그인 유무 확인
+  res.locals.isAuthenticated = isLoggedIn;
+  res.locals.user = req.user;
+  const userId = req.user.id;
+
+  try {
+    const user = await User.findAll({
+      where: { id: userID },
+      include: {
+        model: Follow,
+        attributes: ["follower", "followee"],
+      },
+    });
+    // res.render("", {user});
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+});
+
+router.route("/user/:id").get(isLoggedIn, async (req, res, next) => {
+  const userId = req.params.id;
+
+  try {
+    const user = await User.findAll({
+      where: { id: userID },
+      attributes: ["id", "name", "phone"],
+      include: {
+        model: Follow,
+        attributes: ["follower", "followee"],
+      },
+    });
+    // res.render("", {user});
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+});
+
+// const pet = await Pet.findAll({
+//     where: {userId: user},
+//     attributes: ['id', 'petName'],
+//     include: [
+//         {
+//             model: PetMedicine,
+//             attributes: ['medicineName', 'medicineDate']
+//         },
+//         {
+//             model: PetWalk,
+//             attributes: ['whetherToWalk', 'walkDate']
+//         },
+//     ]
+// });
 
 // router
 //   .route("/")
