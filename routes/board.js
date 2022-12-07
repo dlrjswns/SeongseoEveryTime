@@ -1,6 +1,6 @@
 const express = require("express");
 const { Posting } = require("../models");
-const { isLoggedIn, logout } = require("./checklogin");
+const { isLoggedIn } = require("./checklogin");
 const router = express.Router();
 
 router
@@ -79,6 +79,6 @@ router.route("/delete/:id").get(async (req, res, next) => {
     console.error(err);
     next(err);
   }
-}, logout);
+});
 
 module.exports = router;
