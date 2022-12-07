@@ -17,6 +17,7 @@
     "morgan": "^1.10.0",
     "mysql2": "^2.2.5",
     "nunjucks": "^3.2.2",
+    "passport": "^0.6.0",
     "sequelize": "^6.3.5",
     "sequelize-cli": "^6.2.0"
   },
