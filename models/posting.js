@@ -9,16 +9,12 @@ module.exports = class Posting extends Sequelize.Model {
           type: Sequelize.TEXT,
           allowNull: false,
         },
-        created_at: {
-          type: Sequelize.DATE,
-          allowNull: true,
-        },
       },
       {
         sequelize,
 
-        timestamps: false,
-        underscored: false,
+        timestamps: true, // created_at, updated_at 자동생성위한 코드
+        underscored: true, // created_at, updated_at으로 생성하기위한 코드
         modelName: "Posting",
         tableName: "postings",
         paranoid: false,
