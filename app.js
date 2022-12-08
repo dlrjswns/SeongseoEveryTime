@@ -16,6 +16,7 @@ const followRouter = require("./routes/follow");
 const likeRouter = require("./routes/like");
 const postingRouter = require("./routes/posting");
 const authRouter = require("./routes/auth");
+const boardRouter = require("./routes/board");
 const indexRouter = require("./routes");
 
 dotenv.config();
@@ -58,9 +59,10 @@ app.use(
 app.use("/user", userRouter);
 app.use("/comment", commentRouter);
 // app.use("/like", likeRouter);
-// app.use("/follow", followRouter);
+app.use("/follow", followRouter);
 app.use("/posting", postingRouter);
 app.use("/auth", authRouter);
+app.use("/board", boardRouter);
 app.use("/", indexRouter);
 
 app.use((req, res) =>

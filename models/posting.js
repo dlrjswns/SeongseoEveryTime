@@ -5,7 +5,7 @@ module.exports = class Posting extends Sequelize.Model {
     return super.init(
       {
         /* id 자동 생성 */
-        name: {
+        title: {
           type: Sequelize.STRING(100),
           allowNull: false,
         },
