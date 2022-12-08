@@ -35,6 +35,7 @@ router
         id: req.body.id,
         password: hash,
         name: req.body.name,
+        phone: req.body.phone,
         address: req.body.address,
       });
       res.redirect("/");
@@ -60,7 +61,7 @@ router
 
     passport.authenticate("local", (authError, user, info) => {
       if (user) {
-        req.login(user, (loginError) => res.redirect("/"));
+        req.login(user, (loginError) => res.send("Login Success"));
         res.locals.isAuthenticated = isLoggedIn;
       } else res.send(`${info.message}`);
     })(req, res, next);
