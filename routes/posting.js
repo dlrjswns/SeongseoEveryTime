@@ -11,11 +11,12 @@ router
     const posting_id = req.params.posting_id;
     try {
       const comments = await Comment.findAll({
-        where: { posting_id: posting_id }
+        where: { posting_id: posting_id },
       });
-      // const posting = await Posting.findOne({ where: { id: posting_id } });
-      // const comments = posting.getComments();
-      res.json(comments);
+
+      // 댓글이 없는 경우
+      if (comments.length == 0) res.send("댓글 없음");
+      else res.json(comments);
     } catch (err) {
       console.error(err);
       next(err);
@@ -32,8 +33,8 @@ router
         posting_id,
         content,
       });
+
       res.json(comment);
-      //res.redirect("/");
     } catch (err) {
       console.error(err);
       next(err);
@@ -42,30 +43,28 @@ router
 
 router
   .route("/:posting_id/comments/:comment_id")
-  .get(async (req, res, next) => {
-    // 특정 게시글에 존재하는 comment들중 특정 comment를 삭제
-    const posting_id = req.params.posting_id;
-    const comment_id = req.params.comment_id;
+  .delete(isLoggedIn, async (req, res, next) => {
+    //특정 게시글에 존재하는 comment들중 특정 comment를 삭제
     try {
-      const comment = await Comment.destroy({
-        where: { id: comment_id },
+      const result = await Comment.destroy({
+        where: { id: req.params.comment_id, posting_id: req.params.posting_id, user_id: req.user.id },
       });
-      res.json(comments);
+
+      if (result) res.send("댓글 삭제 완료");
+      else next("삭제 실패");
     } catch (err) {
       console.error(err);
       next(err);
     }
   })
-  .post(async (req, res, next) => {
+  .put(isLoggedIn, async (req, res, next) => {
     // 특정 게시글에 존재하는 comment들중 특정 comment를 수정
-    const { posting_id, content } = req.body;
+    const { content } = req.body;
     try {
-      const comment = await Comment.create({
-        posting_id,
-        content,
-      });
-      res.json(comment);
-      //res.redirect("/");
+      const result = await Comment.update({ content }, { where: { id: req.params.comment_id, posting_id: req.params.posting_id, user_id: req.user.id } });
+
+      if (result.every((x) => x == 1)) res.send("수정 완료");
+      else next("수정 실패");
     } catch (err) {
       console.error(err);
       next(err);
