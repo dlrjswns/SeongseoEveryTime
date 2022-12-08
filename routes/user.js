@@ -19,10 +19,12 @@ router
     try {
       const user = await User.findAll({
         where: { id: userId },
-        include: {
-          model: Follow,
-          attributes: ["follower", "followee"],
-        },
+        include: [
+          {
+            model: Follow,
+            attributes: ["follower", "followee"],
+          },
+        ],
       });
 
       console.log(user);
