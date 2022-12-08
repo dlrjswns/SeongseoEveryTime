@@ -4,10 +4,10 @@ const { Comment, Posting } = require("../models");
 const router = express.Router();
 
 router
-  .route("/:id/comments")
+  .route("/:posting_id/comments")
   .get(async (req, res, next) => {
     // 특정 게시글에 존재하는 comment들을 가져옵니다
-    const posting_id = req.params.id;
+    const posting_id = req.params.posting_id;
     try {
       const posting = await Posting.findOne({ where: { id: posting_id } });
       const comments = posting.getComments();
