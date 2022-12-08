@@ -17,7 +17,7 @@ router
     const userId = req.user.id;
 
     try {
-      const user = await User.findAll({
+      const user = await User.findOne({
         where: { id: userId },
         include: [
           {
@@ -34,14 +34,14 @@ router
       next(err);
     }
   }) /* 내 정보 수정 */
-  .post(async (req, res, next) => {
+  .patch(async (req, res, next) => {
     const userId = req.user.id;
 
     try {
       const hash = await bcrypt.hash(req.body.password, 12);
 
       const result = await User.update(
-        { passwd: hash, name: req.body.name, phone: req.body.phone, addrss: req.body.addrss },
+        { passwd: hash, name: req.body.name, phone: req.body.phone, address: req.body.addrss },
         {
           where: { id: userId },
         }
