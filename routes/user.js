@@ -106,7 +106,7 @@ router.route("/:user_id/comments").get(isLoggedIn, async (req, res, next) => {
       where: { user_id: user_id },
       attributes: ["content", "created_at"],
     });
-    if (comments.length == 0) res.send(`${user_id}에 해당하는 유저가 작성한 댓글 없음`);
+    if (comments.length == 0) res.send(`${user_id} 사용자가 작성한 댓글 없음`);
     else res.json(comments);
     //res.json(comments);
   } catch (err) {
@@ -124,7 +124,7 @@ router.route("/:user_id/postings").get(isLoggedIn, async (req, res, next) => {
       where: { user_id: user_id },
       attributes: ["content", "created_at"],
     });
-    if (postings.length == 0) res.send(`${user_id}에 해당하는 유저가 작성한 게시글 없음`);
+    if (postings.length == 0) res.send(`${user_id} 사용자가 작성한 게시글 없음`);
     else res.json(postings);
     //res.json(postings);
   } catch (err) {
