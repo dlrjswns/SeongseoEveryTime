@@ -10,8 +10,11 @@ router
     // 특정 게시글에 존재하는 comment들을 가져옵니다
     const posting_id = req.params.posting_id;
     try {
-      const posting = await Posting.findOne({ where: { id: posting_id } });
-      const comments = posting.getComments();
+      const comments = await Comment.findAll({
+        where: { posting_id: posting_id }
+      });
+      // const posting = await Posting.findOne({ where: { id: posting_id } });
+      // const comments = posting.getComments();
       res.json(comments);
     } catch (err) {
       console.error(err);
@@ -30,7 +33,7 @@ router
         content,
       });
       res.json(comment);
-      res.redirect("/");
+      //res.redirect("/");
     } catch (err) {
       console.error(err);
       next(err);
@@ -45,7 +48,7 @@ router
     const comment_id = req.params.comment_id;
     try {
       const comment = await Comment.destroy({
-        where: { comment_id: comment_id },
+        where: { id: comment_id },
       });
       res.json(comments);
     } catch (err) {
@@ -62,7 +65,7 @@ router
         content,
       });
       res.json(comment);
-      res.redirect("/");
+      //res.redirect("/");
     } catch (err) {
       console.error(err);
       next(err);

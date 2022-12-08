@@ -41,7 +41,7 @@ router
       const hash = await bcrypt.hash(req.body.password, 12);
 
       const result = await User.update(
-        { passwd: hash, name: req.body.name, phone: req.body.phone, address: req.body.addrss },
+        { password: hash, name: req.body.name, phone: req.body.phone, address: req.body.addrss },
         {
           where: { id: userId },
         }
