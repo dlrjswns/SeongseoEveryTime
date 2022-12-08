@@ -1,6 +1,6 @@
 const express = require("express");
 const { Posting } = require("../models");
-const { isLoggedIn, logout } = require("./checklogin");
+const { isLoggedIn } = require("./checklogin");
 const router = express.Router();
 
 router
@@ -8,7 +8,7 @@ router
   .get(isLoggedIn, async (req, res, next) => {
     try {
       const postings = await Posting.findAll({
-        attributes: ["title", "content", "created_at"],
+        attributes: ["title", "content", "created_at", "updated_at"],
       });
       res.json(postings);
     } catch (err) {
@@ -17,13 +17,12 @@ router
     }
   })
   .post(async (req, res, next) => {
-    const { title, content, created_at } = req.body; // Posting 등록할때 받기위한 데이터
+    const { title, content } = req.body; // Posting 등록할때 받기위한 데이터
     try {
       // create 생성
       await Posting.create({
         title,
         content,
-        created_at: "DUMMY", // set dummy author before add users
       });
       res.redirect("/"); // 게시글 작성이 완료되면 root path로 이동
     } catch (err) {
@@ -79,6 +78,6 @@ router.route("/delete/:id").get(async (req, res, next) => {
     console.error(err);
     next(err);
   }
-}, logout);
+});
 
 module.exports = router;
