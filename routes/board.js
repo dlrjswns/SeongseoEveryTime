@@ -53,7 +53,7 @@ router.route("/:id").get(isLoggedIn, async (req, res, next) => {
   }
 });
 
-router.post("/:posting_id/edit", isLoggedIn, async (req, res, next) => {
+router.put("/:posting_id/edit", isLoggedIn, async (req, res, next) => {
   // 내 게시글만 수정 가능
   // 특정 아이디에 해당하는 게시글 수정하기
   try {
@@ -79,7 +79,7 @@ router.post("/:posting_id/edit", isLoggedIn, async (req, res, next) => {
 });
 
 // 특정 게시글을 삭제하기
-router.get("/:posting_id/remove", isLoggedIn, async (req, res, next) => {
+router.delete("/:posting_id/remove", isLoggedIn, async (req, res, next) => {
   try {
     const result = await Posting.destroy({
       where: { id: req.params.posting_id, user_id: req.user.id },
