@@ -11,7 +11,6 @@ const nunjucks = require("nunjucks");
 const { sequelize } = require("./models");
 
 const userRouter = require("./routes/user");
-const commentRouter = require("./routes/comment");
 const followRouter = require("./routes/follow");
 const likeRouter = require("./routes/like");
 const postingRouter = require("./routes/posting");
@@ -57,7 +56,6 @@ app.use(
 );
 
 app.use("/user", userRouter);
-app.use("/comment", commentRouter);
 // app.use("/like", likeRouter);
 app.use("/follow", followRouter);
 app.use("/posting", postingRouter);
