@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon"
+    "start": "nodemon app"
   },
   "author": "Prof. Wonvin Kim, Computer Software, Korean Bibie University",
   "license": "ISC",
