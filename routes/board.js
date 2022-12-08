@@ -1,6 +1,7 @@
 const express = require("express");
 const { Posting, User } = require("../models");
 const { isLoggedIn } = require("./checklogin");
+const formatterService = require("../service/formatterService");
 const router = express.Router();
 
 router
@@ -15,8 +16,8 @@ router
           attributes: ["name"],
         },
       });
-      if (postings.length == 0) res.send(`작성한 게시글 없음`); // 어떤 사용자도 게시글을 작성하지않은 경우
-      else res.json(postings);
+      if (postings.length == 0) res.json(formatterService.failureResponseFormat("작성한 게시글 없음")); // 어떤 사용자도 게시글을 작성하지않은 경우
+      else res.json(formatterService.successResponseFormat("모든 게시글 조회 성공", postings));
       // res.json(postings);
     } catch (err) {
       console.error(err);
@@ -34,7 +35,7 @@ router
         user_id,
       });
       //res.redirect("/"); // 게시글 작성이 완료되면 root path로 이동
-      res.json(result);
+      res.json(formatterService.successResponseFormat("게시글 등록 성공", result));
     } catch (err) {
       next(err);
     }
@@ -48,8 +49,8 @@ router.route("/:user_id").get(isLoggedIn, async (req, res, next) => {
       where: { user_id: user_id },
     });
 
-    if (postings.length == 0) res.send(`${user_id}에 해당하는 사용자가 작성한 게시글 없음`);
-    else res.json(postings);
+    if (postings.length == 0) res.json(formatterService.failureResponseFormat(`${user_id}에 해당하는 사용자가 작성한 게시글 없음`));
+    else res.json(formatterService.successResponseFormat("사용자가 작성한 게시글 가져오기 성공", postings));
 
     // if (!posting) res.send(`${user_id}에 해당하는 사용자가 작성한 게시글 없음`);
     // else res.json(posting);
@@ -101,7 +102,7 @@ router.get("/:posting_id/remove", isLoggedIn, async (req, res, next) => {
       where: { id: id, user_id: user_id },
     });
 
-    if (result) res.send(`${id}에 해당하는 게시글 삭제 완료`); // 게시글 삭제에 성공
+    if (result) res.send(`${id} 게시글 삭제 완료`); // 게시글 삭제에 성공
     else next(`There is no posting with ${id}.`);
   } catch (err) {
     console.error(err);

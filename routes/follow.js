@@ -3,7 +3,7 @@ const router = express.Router();
 const { User, Follow } = require("../models");
 const { isLoggedIn } = require("./checklogin");
 
-/* 해당 사용자를 팔로우한 유저 아이디 요청 */
+/* 해당 사용자를 팔로우한 유저 조회 */
 router.get("/:user_id", async (req, res, next) => {
   const id = req.params.user_id; // 사용자 아이디
 
@@ -101,8 +101,8 @@ router.delete("/:user_id/undo", isLoggedIn, async (req, res, next) => {
       where: { follower, followee },
     });
 
-    if (result) res.send(`${followee}에 해당하는 사용자 팔로우를 취소했습니다.`);
-    else next(`${followee}에 해당하는 사용자는 이미 언팔로우되어있습니다.`);
+    if (result) res.send(`${followee} 사용자 팔로우를 취소했습니다.`);
+    else next(`${followee} 사용자는 이미 언팔로우되어있습니다.`);
   } catch (err) {
     console.error(err);
     next(err);
