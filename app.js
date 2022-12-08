@@ -1,12 +1,12 @@
-const path = require("path");
-
-const dotenv = require("dotenv");
-
 const express = require("express");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 
+const dotenv = require("dotenv");
+const passport = require("passport");
+const passportConfig = require("./passport");
+const path = require("path");
 const nunjucks = require("nunjucks");
 const { sequelize } = require("./models");
 
@@ -19,6 +19,7 @@ const authRouter = require("./routes/auth");
 const indexRouter = require("./routes");
 
 dotenv.config();
+passportConfig();
 
 const app = express();
 app.set("port", process.env.PORT || 3000);
@@ -49,13 +50,15 @@ app.use(
       secure: false,
     },
     name: "session-cookie",
-  })
+  }),
+  passport.initialize(),
+  passport.session()
 );
 
 app.use("/user", userRouter);
 app.use("/comment", commentRouter);
 // app.use("/like", likeRouter);
-// app.use("/follow", followRouter);
+app.use("/follow", followRouter);
 app.use("/posting", postingRouter);
 app.use("/auth", authRouter);
 app.use("/", indexRouter);
