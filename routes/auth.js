@@ -1,7 +1,7 @@
 const express = require("express");
 
 const User = require("../models/user");
-const { isLoggedIn, isNotLoggedIn } = require("./checklogin");
+const { isLoggedIn } = require("./checklogin");
 
 const bcrypt = require("bcrypt");
 const passport = require("passport");
@@ -13,32 +13,33 @@ router
   .route("/join")
   .get((req, res, next) => {
     try {
-      res.render("join");
+      res.send("회원가입을 할 수 있는 페이지 요청");
+      //res.render("join");
     } catch (err) {
       console.log(err);
       next(err);
     }
   })
   .post(async (req, res, next) => {
-    const userData = req.body; // 회원가입하고자하는 유저정보
-    console.log(userData);
+    const { id, password, name, phone, address } = req.body; // 회원가입하고자하는 유저정보
 
-    const user = await User.findOne({ where: { id: req.body.id } });
+    const user = await User.findOne({ where: { id: id } });
     if (user) {
-      next("이미 등록된 사용자 아이디입니다.");
+      next(`${id}는 이미 등록된 사용자 아이디입니다.`);
       return;
     }
 
     try {
-      const hash = await bcrypt.hash(req.body.password, 12);
+      const hash = await bcrypt.hash(password, 12);
       await User.create({
-        id: req.body.id,
+        id: id,
         password: hash,
-        name: req.body.name,
-        phone: req.body.phone,
-        address: req.body.address,
+        name: name,
+        phone: phone,
+        address: address,
       });
-      res.redirect("/");
+      res.send(`${id} 사용자 회원가입 성공`);
+      //res.redirect("/");
     } catch (err) {
       console.log(err);
       next(err);
@@ -72,7 +73,8 @@ router.get("/logout", (req, res, next) => {
   try {
     req.logout();
     req.session.destroy();
-    res.redirect("/");
+    res.send("사용자 로그아웃");
+    //res.redirect("/");
   } catch (err) {
     console.log(err);
     next(err);
