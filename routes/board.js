@@ -67,6 +67,7 @@ router.post("/:posting_id/edit", isLoggedIn, async (req, res, next) => {
   const id = req.params.posting_id; // 수정하고자하는 게시글 아이디
   const user_id = req.user.id; // 로그인되어있는 사용자 아이디
   const { title, content } = req.body;
+
   try {
     const result = await Posting.update(
       {
@@ -90,9 +91,11 @@ router.post("/:posting_id/edit", isLoggedIn, async (req, res, next) => {
 });
 
 // 특정 게시글을 삭제하기
+
 router.get("/:posting_id/remove", isLoggedIn, async (req, res, next) => {
   const id = req.params.posting_id;
   const user_id = req.user.id; // 로그인되어있는 사용자 아이디
+
   try {
     const result = await Posting.destroy({
       where: { id: id, user_id: user_id },

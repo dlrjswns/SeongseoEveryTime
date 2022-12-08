@@ -64,7 +64,8 @@ router.post("/:user_id/do", isLoggedIn, async (req, res, next) => {
 
   // 이미 구독이 되어있으면, 팔로우 실패
   try {
-    const [created] = await Follow.findOrCreate({
+    // row 생략 절대 금지
+    const [row, created] = await Follow.findOrCreate({
       where: { follower, followee },
       defaults: { follower, followee },
     });
