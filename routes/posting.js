@@ -1,5 +1,6 @@
 const express = require("express");
 const { Comment, Posting } = require("../models");
+const { isLoggedIn } = require("./checklogin");
 
 const router = express.Router();
 
@@ -17,11 +18,14 @@ router
       next(err);
     }
   })
-  .post(async (req, res, next) => {
+  .post(isLoggedIn, async (req, res, next) => {
     // 특정 게시글에 comment들을 등록합니다
-    const { posting_id, content } = req.body;
+    const { content } = req.body;
+    const posting_id = req.params.posting_id;
+    const user_id = req.user.id;
     try {
       const comment = await Comment.create({
+        user_id,
         posting_id,
         content,
       });
