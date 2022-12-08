@@ -58,7 +58,7 @@ app.use(
 app.use("/user", userRouter);
 app.use("/comment", commentRouter);
 // app.use("/like", likeRouter);
-// app.use("/follow", followRouter);
+app.use("/follow", followRouter);
 app.use("/posting", postingRouter);
 app.use("/auth", authRouter);
 app.use("/", indexRouter);
