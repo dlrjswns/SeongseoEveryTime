@@ -1,14 +1,19 @@
 const express = require("express");
-const { Posting } = require("../models");
+const { Posting, User } = require("../models");
 const { isLoggedIn } = require("./checklogin");
 const router = express.Router();
 
 router
   .route("/")
   .get(isLoggedIn, async (req, res, next) => {
+    // 모든 게시글 조회
     try {
       const postings = await Posting.findAll({
-        attributes: ["title", "content", "created_at", "updated_at"],
+        attributes: ["id", "title", "content", "created_at", "updated_at"],
+        include: {
+          model: User,
+          attributes: ["name"],
+        },
       });
       res.json(postings);
     } catch (err) {
