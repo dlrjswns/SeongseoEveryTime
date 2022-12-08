@@ -15,7 +15,9 @@ router
           attributes: ["name"],
         },
       });
-      res.json(postings);
+      if (postings.length == 0) res.send(`작성한 게시글 없음`); // 어떤 사용자도 게시글을 작성하지않은 경우
+      else res.json(postings);
+      // res.json(postings);
     } catch (err) {
       console.error(err);
       next(err);
@@ -38,15 +40,19 @@ router
     }
   });
 
-router.route("/:id").get(isLoggedIn, async (req, res, next) => {
-  // 특정 아이디에 해당하는 게시글 가져오기
+router.route("/:user_id").get(isLoggedIn, async (req, res, next) => {
+  // 특정 아이디에 해당하는 사용자가 작성한 모든 게시글 가져오기
+  const user_id = req.params.user_id;
   try {
-    const posting = await Posting.findAll({
-      where: { user_id: req.params.id },
+    const postings = await Posting.findAll({
+      where: { user_id: user_id },
     });
 
-    if (!posting) res.send("작성한 게시글 없음");
-    else res.json(posting);
+    if (postings.length == 0) res.send(`${user_id}에 해당하는 사용자가 작성한 게시글 없음`);
+    else res.json(postings);
+
+    // if (!posting) res.send(`${user_id}에 해당하는 사용자가 작성한 게시글 없음`);
+    // else res.json(posting);
   } catch (err) {
     console.error(err);
     next(err);
@@ -54,21 +60,26 @@ router.route("/:id").get(isLoggedIn, async (req, res, next) => {
 });
 
 router.post("/:posting_id/edit", isLoggedIn, async (req, res, next) => {
-  // 내 게시글만 수정 가능
-  // 특정 아이디에 해당하는 게시글 수정하기
+  /*
+      내 게시글만 수정 가능
+      특정 아이디에 해당하는 게시글 수정하기
+  */
+  const id = req.params.posting_id; // 수정하고자하는 게시글 아이디
+  const user_id = req.user.id; // 로그인되어있는 사용자 아이디
+  const { title, content } = req.body;
   try {
     const result = await Posting.update(
       {
-        // 이 부분에 created_at은 어떻게 해야할지 찾아봐야됨
-        title: req.body.title,
-        content: req.body.content,
+        title: title,
+        content: content,
       },
       {
-        where: { id: req.params.posting_id, user_id: req.user.id },
+        where: { id: id, user_id: user_id },
       }
     );
 
     if (result) {
+      // 게시글 수정 성공
       console.log("수정완료");
       res.json(result);
       // res.redirect("/"); // 게시글 수정이 완료되면 root path로 이동
@@ -80,13 +91,15 @@ router.post("/:posting_id/edit", isLoggedIn, async (req, res, next) => {
 
 // 특정 게시글을 삭제하기
 router.get("/:posting_id/remove", isLoggedIn, async (req, res, next) => {
+  const id = req.params.posting_id;
+  const user_id = req.user.id; // 로그인되어있는 사용자 아이디
   try {
     const result = await Posting.destroy({
-      where: { id: req.params.posting_id, user_id: req.user.id },
+      where: { id: id, user_id: user_id },
     });
 
-    if (result) res.send(`${req.params.posting_id} 게시글 삭제 완료`);
-    else next(`There is no posting with ${req.params.posting_id}.`);
+    if (result) res.send(`${id}에 해당하는 게시글 삭제 완료`); // 게시글 삭제에 성공
+    else next(`There is no posting with ${id}.`);
   } catch (err) {
     console.error(err);
     next(err);

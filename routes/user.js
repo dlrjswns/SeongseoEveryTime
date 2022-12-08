@@ -14,11 +14,11 @@ router
     res.locals.isAuthenticated = isLoggedIn;
     res.locals.user = req.user;
 
-    const userId = req.user.id;
+    const id = req.user.id; // 해당하는 유저 아이디
 
     try {
       const user = await User.findOne({
-        where: { id: userId },
+        where: { id: id },
         include: [
           {
             model: Follow,
@@ -35,18 +35,19 @@ router
     }
   }) /* 내 정보 수정 */
   .patch(async (req, res, next) => {
-    const userId = req.user.id;
-
+    const id = req.user.id; // 해당하는 유저 아이디
+    const { password, name, phone, address } = req.body;
     try {
-      const hash = await bcrypt.hash(req.body.password, 12);
+      const hash = await bcrypt.hash(password, 12);
 
       const result = await User.update(
-        { password: hash, name: req.body.name, phone: req.body.phone, address: req.body.addrss },
+        { password: hash, name: name, phone: phone, address: address },
         {
-          where: { id: userId },
+          where: { id: id },
         }
       );
       if (result) {
+        // 내 정보 수정 성공
         console.log(result);
         res.json(result);
       } else next("Not updated");
@@ -57,12 +58,12 @@ router
   });
 
 /* 지정한 사용자 정보 요청 */
-router.route("/:id").get(isLoggedIn, async (req, res, next) => {
-  const userId = req.params.id;
+router.route("/:user_id").get(isLoggedIn, async (req, res, next) => {
+  const id = req.params.user_id; // 지정한 유저 아이디
 
   try {
-    const user = await User.findAll({
-      where: { id: userId },
+    const user = await User.findOne({
+      where: { id: user_id },
       attributes: ["id", "name", "phone"],
       include: {
         model: Follow,
@@ -70,8 +71,8 @@ router.route("/:id").get(isLoggedIn, async (req, res, next) => {
       },
     });
 
-    if (user) res.json(user);
-    else next(`No user with ${userId}.`);
+    if (user) res.json(user); // 지정한 사용자찾기 성공
+    else next(`No user with ${user_id}.`);
   } catch (err) {
     console.log(err);
     next(err);
@@ -97,15 +98,17 @@ router.route("/:id").get(isLoggedIn, async (req, res, next) => {
 // });
 
 /* 지정한 사용자가 작성한 댓글 요청 */
-router.route("/:id/comments").get(isLoggedIn, async (req, res, next) => {
-  const userId = req.params.id;
+router.route("/:user_id/comments").get(isLoggedIn, async (req, res, next) => {
+  const user_id = req.params.user_id;
 
   try {
     const comments = await Comment.findAll({
-      where: { user_id: userId },
+      where: { user_id: user_id },
       attributes: ["content", "created_at"],
     });
-    res.json(comments);
+    if (comments.length == 0) res.send(`${user_id}에 해당하는 유저가 작성한 댓글 없음`);
+    else res.json(comments);
+    //res.json(comments);
   } catch (err) {
     console.log(err);
     next(err);
@@ -113,15 +116,17 @@ router.route("/:id/comments").get(isLoggedIn, async (req, res, next) => {
 });
 
 /*지정한 사용자가 작성한 게시글 요청*/
-router.route("/:id/postings").get(isLoggedIn, async (req, res, next) => {
-  const userId = req.params.id;
+router.route("/:user_id/postings").get(isLoggedIn, async (req, res, next) => {
+  const user_id = req.params.user_id;
 
   try {
     const postings = await Posting.findAll({
-      where: { user_id: userId },
+      where: { user_id: user_id },
       attributes: ["content", "created_at"],
     });
-    res.json(postings);
+    if (postings.length == 0) res.send(`${user_id}에 해당하는 유저가 작성한 게시글 없음`);
+    else res.json(postings);
+    //res.json(postings);
   } catch (err) {
     console.log(err);
     next(err);

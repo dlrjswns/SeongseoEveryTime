@@ -1,5 +1,5 @@
 const express = require("express");
-const { Comment, Posting } = require("../models");
+const { Comment } = require("../models");
 const { isLoggedIn } = require("./checklogin");
 
 const router = express.Router();
@@ -15,7 +15,7 @@ router
       });
 
       // 댓글이 없는 경우
-      if (comments.length == 0) res.send("댓글 없음");
+      if (comments.length == 0) res.send(`${id}에 해당하는 댓글 없음`);
       else res.json(comments);
     } catch (err) {
       console.error(err);
@@ -45,12 +45,15 @@ router
   .route("/:posting_id/comments/:comment_id")
   .delete(isLoggedIn, async (req, res, next) => {
     //특정 게시글에 존재하는 comment들중 특정 comment를 삭제
+    const id = req.params.comment_id;
+    const posting_id = req.params.posting_id;
+    const user_id = req.user.id;
     try {
       const result = await Comment.destroy({
-        where: { id: req.params.comment_id, posting_id: req.params.posting_id, user_id: req.user.id },
+        where: { id: id, posting_id: posting_id, user_id: user_id },
       });
 
-      if (result) res.send("댓글 삭제 완료");
+      if (result) res.send(`${id} 댓글 삭제 완료`);
       else next("삭제 실패");
     } catch (err) {
       console.error(err);
@@ -60,10 +63,13 @@ router
   .put(isLoggedIn, async (req, res, next) => {
     // 특정 게시글에 존재하는 comment들중 특정 comment를 수정
     const { content } = req.body;
+    const id = req.params.comment_id;
+    const posting_id = req.params.posting_id;
+    const user_id = req.user.id;
     try {
-      const result = await Comment.update({ content }, { where: { id: req.params.comment_id, posting_id: req.params.posting_id, user_id: req.user.id } });
+      const result = await Comment.update({ content }, { where: { id: id, posting_id: posting_id, user_id: user_id } });
 
-      if (result.every((x) => x == 1)) res.send("수정 완료");
+      if (result.every((x) => x == 1)) res.send(`${id} 댓글 수정 완료`);
       else next("수정 실패");
     } catch (err) {
       console.error(err);
