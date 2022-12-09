@@ -2,6 +2,7 @@ const express = require("express");
 
 const User = require("../models/user");
 const { isLoggedIn } = require("./checklogin");
+const formatterService = require("../service/formatterService");
 
 const bcrypt = require("bcrypt");
 const passport = require("passport");
@@ -13,7 +14,7 @@ router
   .route("/join")
   .get((req, res, next) => {
     try {
-      res.send("회원가입을 할 수 있는 페이지 요청");
+      res.json(formatterService.successResponseFormat("회원가입 페이지 가져오기 성공", null));
       //res.render("join");
     } catch (err) {
       console.log(err);
@@ -31,14 +32,15 @@ router
 
     try {
       const hash = await bcrypt.hash(password, 12);
-      await User.create({
+      const user = await User.create({
         id: id,
         password: hash,
         name: name,
         phone: phone,
         address: address,
       });
-      res.send(`${id} 사용자 회원가입 성공`);
+      res.json(formatterService.successResponseFormat(`${id} 사용자 회원가입 성공`, user));
+      //res.send(`${id} 사용자 회원가입 성공`);
       //res.redirect("/");
     } catch (err) {
       console.log(err);
@@ -51,7 +53,7 @@ router
   .route("/login")
   .get((req, res, next) => {
     try {
-      res.render("login");
+      res.json(formatterService.successResponseFormat("로그인 페이지 가져오기 성공", null));
     } catch (err) {
       console.error(err);
       next(err);
@@ -62,9 +64,9 @@ router
 
     passport.authenticate("local", (authError, user, info) => {
       if (user) {
-        req.login(user, (loginError) => res.send("Login Success"));
+        req.login(user, (loginError) => res.json(formatterService.successResponseFormat("Login Success", null)));
         res.locals.isAuthenticated = isLoggedIn;
-      } else res.send(`${info.message}`);
+      } else res.json(formatterService.failureResponseFormat(`${info.message}`));
     })(req, res, next);
   });
 
@@ -73,7 +75,8 @@ router.get("/logout", (req, res, next) => {
   try {
     req.logout();
     req.session.destroy();
-    res.send("사용자 로그아웃");
+    res.json(formatterService.failureResponseFormat("사용자 로그아웃"));
+    //res.send("사용자 로그아웃");
     //res.redirect("/");
   } catch (err) {
     console.log(err);
