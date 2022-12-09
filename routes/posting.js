@@ -1,13 +1,14 @@
 const express = require("express");
 const { Comment } = require("../models");
 const { isLoggedIn } = require("./checklogin");
+const formatterService = require("../service/formatterService");
 
 const router = express.Router();
 
 router
   .route("/:posting_id/comments")
   .get(async (req, res, next) => {
-    // 특정 게시글에 존재하는 comment들을 가져옵니다
+    // 특정 게시글에 존재하는 comment들을 조회하는 API
     const posting_id = req.params.posting_id;
     try {
       const comments = await Comment.findAll({
@@ -15,8 +16,8 @@ router
       });
 
       // 댓글이 없는 경우
-      if (comments.length == 0) res.send(`${id}에 해당하는 댓글 없음`);
-      else res.json(comments);
+      if (comments.length == 0) res.json(formatterService.responseNoDataFormat("failure", `${id}에 해당하는 댓글 없음`));
+      else res.json(formatterService.responseDataFormat("success", "특정 게시글 comments 조회 성공", comments));
     } catch (err) {
       console.error(err);
       next(err);
@@ -28,13 +29,13 @@ router
     const posting_id = req.params.posting_id;
     const user_id = req.user.id;
     try {
-      const comment = await Comment.create({
+      await Comment.create({
         user_id,
         posting_id,
         content,
       });
 
-      res.json(comment);
+      res.json(formatterService.responseNoDataFormat("success", "특정 게시글에 comments 등록 성공"));
     } catch (err) {
       console.error(err);
       next(err);
@@ -53,8 +54,8 @@ router
         where: { id: id, posting_id: posting_id, user_id: user_id },
       });
 
-      if (result) res.send(`${id} 댓글 삭제 완료`);
-      else next("삭제 실패");
+      if (result) res.json(formatterService.responseNoDataFormat("success", "comment 삭제 성공"));
+      else res.json(formatterService.responseNoDataFormat("failure", "comment 삭제 실패"));
     } catch (err) {
       console.error(err);
       next(err);
@@ -69,8 +70,8 @@ router
     try {
       const result = await Comment.update({ content }, { where: { id: id, posting_id: posting_id, user_id: user_id } });
 
-      if (result.every((x) => x == 1)) res.send(`${id} 댓글 수정 완료`);
-      else next("수정 실패");
+      if (result.every((x) => x == 1)) res.json(formatterService.responseNoDataFormat("success", `${id} 댓글 수정 완료`));
+      else res.json(formatterService.responseNoDataFormat("failure", "comment 수정 실패"));
     } catch (err) {
       console.error(err);
       next(err);

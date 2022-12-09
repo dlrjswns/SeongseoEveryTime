@@ -1,14 +1,14 @@
-exports.successResponseFormat = (message, data) => {
+exports.responseDataFormat = (result, message, data) => {
   return {
-    result: "success",
+    result: result,
     message: message,
     data: data,
   };
 };
 
-exports.failureResponseFormat = (message) => {
+exports.responseNoDataFormat = (result, message) => {
   return {
-    result: "failure",
+    result: result,
     message: message,
   };
 };

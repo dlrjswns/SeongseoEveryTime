@@ -14,7 +14,7 @@ router
   .route("/join")
   .get((req, res, next) => {
     try {
-      res.json(formatterService.successResponseFormat("회원가입 페이지 가져오기 성공", null));
+      res.json(formatterService.responseNoDataFormat("success", "회원가입 페이지 가져오기 성공"));
       //res.render("join");
     } catch (err) {
       console.log(err);
@@ -26,20 +26,21 @@ router
 
     const user = await User.findOne({ where: { id: id } });
     if (user) {
-      next(`${id}는 이미 등록된 사용자 아이디입니다.`);
+      res.json(formatterService.responseNoDataFormat("failure", `${id}는 이미 등록된 사용자 아이디입니다.`));
+      //next(`${id}는 이미 등록된 사용자 아이디입니다.`);
       return;
     }
 
     try {
       const hash = await bcrypt.hash(password, 12);
-      const user = await User.create({
+      await User.create({
         id: id,
         password: hash,
         name: name,
         phone: phone,
         address: address,
       });
-      res.json(formatterService.successResponseFormat(`${id} 사용자 회원가입 성공`, user));
+      res.json(formatterService.responseNoDataFormat("success", `${id} 사용자 회원가입 성공`));
       //res.send(`${id} 사용자 회원가입 성공`);
       //res.redirect("/");
     } catch (err) {
@@ -53,7 +54,7 @@ router
   .route("/login")
   .get((req, res, next) => {
     try {
-      res.json(formatterService.successResponseFormat("로그인 페이지 가져오기 성공", null));
+      res.json(formatterService.responseNoDataFormat("success", "로그인 페이지 가져오기 성공"));
     } catch (err) {
       console.error(err);
       next(err);
@@ -64,9 +65,9 @@ router
 
     passport.authenticate("local", (authError, user, info) => {
       if (user) {
-        req.login(user, (loginError) => res.json(formatterService.successResponseFormat("Login Success", null)));
+        req.login(user, (loginError) => res.json(formatterService.responseNoDataFormat("success", "로그인 성공", null)));
         res.locals.isAuthenticated = isLoggedIn;
-      } else res.json(formatterService.failureResponseFormat(`${info.message}`));
+      } else res.json(formatterService.responseNoDataFormat("failure", `${info.message}`));
     })(req, res, next);
   });
 
@@ -75,7 +76,7 @@ router.get("/logout", (req, res, next) => {
   try {
     req.logout();
     req.session.destroy();
-    res.json(formatterService.failureResponseFormat("사용자 로그아웃"));
+    res.json(formatterService.responseNoDataFormat("success", "사용자 로그아웃"));
     //res.send("사용자 로그아웃");
     //res.redirect("/");
   } catch (err) {
@@ -83,41 +84,5 @@ router.get("/logout", (req, res, next) => {
     next(err);
   }
 });
-
-// 마이페이지
-router
-  .route("/mypage")
-  .get((req, res, next) => {
-    try {
-      res.locals.isAuthenticated = isLoggedIn; //로그인이 되었는지 안됬는지
-      res.locals.user = req.user;
-      res.render("mypage");
-    } catch (err) {
-      console.error(err);
-      next(err);
-    }
-  })
-
-  .post(async (req, res, next) => {
-    console.log(req.body);
-    try {
-      const hash = await bcrypt.hash(req.body.password, 12);
-      const result = await User.update(
-        {
-          password: hash,
-          name: req.body.name,
-          address: req.body.address,
-        },
-        {
-          where: { id: req.body.id },
-        }
-      );
-      if (result) res.redirect("/");
-      else next("Not updated!");
-    } catch (err) {
-      console.error(err);
-      next(err);
-    }
-  });
 
 module.exports = router;

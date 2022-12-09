@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { Like } = require("../models");
 const { isLoggedIn } = require("./checklogin");
+const formatterService = require("../service/formatterService");
 
 // POST: /like/:posting_id/do -> 좋아요 요청
 // DELETE: /like/:posting_id/undo -> 좋아요 취소 요청
@@ -19,8 +20,8 @@ router.post("/:posting_id/do", isLoggedIn, async (req, res, next) => {
       defaults: { user_id, posting_id },
     });
 
-    if (created) res.send(`${user_id} 사용자가 ${posting_id} 게시글에 [좋아요]하였습니다.`);
-    else next("이미 좋아요한 글입니다.");
+    if (created) res.json(formatterService.responseNoDataFormat("success", `${user_id} 사용자가 ${posting_id} 게시글에 [좋아요]하였습니다.`));
+    else res.json(formatterService.responseNoDataFormat("failure", "이미 좋아요한 글입니다."));
   } catch (err) {
     console.error(err);
     next(err);
@@ -37,8 +38,8 @@ router.delete("/:posting_id/undo", isLoggedIn, async (req, res, next) => {
       where: { user_id, posting_id },
     });
 
-    if (result) res.send(`${user_id} 사용자가 ${posting_id} 게시글에 [좋아요]를 취소하였습니다.`);
-    else next("이미 좋아요를 누르지 않은 글입니다.");
+    if (result) res.json(formatterService.responseNoDataFormat("success", `${user_id} 사용자가 ${posting_id} 게시글에 [좋아요]를 취소하였습니다.`));
+    else res.json(formatterService.responseNoDataFormat("failure", "이미 좋아요를 누르지 않은 글입니다."));
   } catch (err) {
     console.error(err);
     next(err);
