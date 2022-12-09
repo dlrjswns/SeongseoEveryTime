@@ -1,6 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const { User, Follow, Comment, Posting } = require("../models");
+const formatterService = require("../service/formatterService");
 
 const { isLoggedIn } = require("./checklogin");
 
@@ -27,8 +28,8 @@ router
         ],
       });
 
-      console.log(user);
-      res.json(user);
+      if (user) res.json(formatterService.responseDataFormat("success", "내 정보 조회 성공", user));
+      else res.json(formatterService.responseNoDataFormat("failure", "내 정보 조회 실패"));
     } catch (err) {
       console.log(err);
       next(err);
@@ -48,9 +49,8 @@ router
       );
       if (result) {
         // 내 정보 수정 성공
-        console.log(result);
-        res.json(result);
-      } else next("Not updated");
+        res.json(formatterService.responseNoDataFormat("success", "내 정보 수정 성공"));
+      } else res.json(formatterService.responseNoDataFormat("failure", "내 정보 수정 실패"));
     } catch (err) {
       console.log(err);
       next(err);
@@ -71,8 +71,8 @@ router.route("/:user_id").get(isLoggedIn, async (req, res, next) => {
       },
     });
 
-    if (user) res.json(user); // 지정한 사용자찾기 성공
-    else next(`No user with ${user_id}.`);
+    if (user) res.json(formatterService.responseDataFormat("success", "지정한 사용자 정보 조회 성공", user)); // 지정한 사용자찾기 성공
+    else res.json(formatterService.responseNoDataFormat("failure", `No user with ${user_id}.`));
   } catch (err) {
     console.log(err);
     next(err);
@@ -106,8 +106,8 @@ router.route("/:user_id/comments").get(isLoggedIn, async (req, res, next) => {
       where: { user_id: user_id },
       attributes: ["content", "created_at"],
     });
-    if (comments.length == 0) res.send(`${user_id} 사용자가 작성한 댓글 없음`);
-    else res.json(comments);
+    if (comments.length == 0) res.json(formatterService.responseNoDataFormat("failure", `${user_id} 사용자가 작성한 댓글 없음`));
+    else res.json(formatterService.responseDataFormat("success", "지정한 사용자가 작성한 댓글 조회 성공", comments));
     //res.json(comments);
   } catch (err) {
     console.log(err);
@@ -124,8 +124,8 @@ router.route("/:user_id/postings").get(isLoggedIn, async (req, res, next) => {
       where: { user_id: user_id },
       attributes: ["content", "created_at"],
     });
-    if (postings.length == 0) res.send(`${user_id} 사용자가 작성한 게시글 없음`);
-    else res.json(postings);
+    if (postings.length == 0) res.json(formatterService.responseNoDataFormat("failure", `${user_id} 사용자가 작성한 게시글 없음`));
+    else res.json(formatterService.responseDataFormat("success", "지정한 사용자가 작성한 게시글 조회 성공", postings));
     //res.json(postings);
   } catch (err) {
     console.log(err);

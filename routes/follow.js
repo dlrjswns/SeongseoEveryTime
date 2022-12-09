@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { User, Follow } = require("../models");
 const { isLoggedIn } = require("./checklogin");
+const formatterService = require("../service/formatterService");
 
 /* 해당 사용자를 팔로우한 유저 조회 */
 router.get("/:user_id", async (req, res, next) => {
@@ -14,7 +15,7 @@ router.get("/:user_id", async (req, res, next) => {
     });
 
     if (!result) {
-      res.send(`${id}에 해당하는 사용자가 존재하지 않습니다.`);
+      res.json(formatterService.responseNoDataFormat("failure", `${id}에 해당하는 사용자가 존재하지 않습니다.`));
     }
   } catch (err) {
     console.log(err);
@@ -22,7 +23,7 @@ router.get("/:user_id", async (req, res, next) => {
   }
 
   try {
-    const follwers = await Follow.findAll({
+    const followers = await Follow.findAll({
       where: { followee: id },
       attributes: ["follower"],
       include: {
@@ -32,8 +33,8 @@ router.get("/:user_id", async (req, res, next) => {
     });
 
     // array of JSON(database row)
-    if (follwers.length == 0) res.send(`${id}에 해당하는 사용자를 팔로우한 사람 없음`);
-    else res.json(follwers);
+    if (followers.length == 0) res.json(formatterService.responseNoDataFormat("failure", `${id}에 해당하는 사용자를 팔로우한 사람 없음`));
+    else res.json(formatterService.responseDataFormat("success", "해당 사용자를 팔로우한 사용자 조회 성공", followers));
     // if (follwer) res.json(follwer);
     // else next(`존재하지 않는 사용자입니다.`);
   } catch (err) {
@@ -55,7 +56,7 @@ router.post("/:user_id/do", isLoggedIn, async (req, res, next) => {
     });
 
     if (!result) {
-      res.send(`${followee}에 해당하는 사용자없음`);
+      res.json(formatterService.responseNoDataFormat("failure", `${followee}에 해당하는 사용자없음`));
     }
   } catch (err) {
     console.log(err);
@@ -69,8 +70,8 @@ router.post("/:user_id/do", isLoggedIn, async (req, res, next) => {
       where: { follower, followee },
       defaults: { follower, followee },
     });
-    if (created) res.send(`${followee}에 해당하는 사용자 팔로우 완료`);
-    else next(`${followee}에 해당하는 사용자는 이미 팔로우한 사용자입니다.`);
+    if (created) res.json(formatterService.responseNoDataFormat("success", `${followee}에 해당하는 사용자 팔로우 완료`));
+    else res.json(formatterService.responseNoDataFormat("failure", `${followee}에 해당하는 사용자는 이미 팔로우한 사용자입니다.`));
   } catch (err) {
     console.error(err);
     next(err);
@@ -88,7 +89,7 @@ router.delete("/:user_id/undo", isLoggedIn, async (req, res, next) => {
     });
 
     if (!result) {
-      res.send(`${followee}에 해당하는 사용자없음`);
+      res.json(formatterService.responseNoDataFormat("failure", `${followee}에 해당하는 사용자없음`));
     }
   } catch (err) {
     console.log(err);
@@ -101,8 +102,8 @@ router.delete("/:user_id/undo", isLoggedIn, async (req, res, next) => {
       where: { follower, followee },
     });
 
-    if (result) res.send(`${followee} 사용자 팔로우를 취소했습니다.`);
-    else next(`${followee} 사용자는 이미 언팔로우되어있습니다.`);
+    if (result) res.json(formatterService.responseNoDataFormat("success", `${followee} 사용자 팔로우를 취소했습니다.`));
+    else res.json(formatterService.responseNoDataFormat("failure", `${followee} 사용자는 이미 언팔로우되어있습니다.`));
   } catch (err) {
     console.error(err);
     next(err);
